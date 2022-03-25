@@ -6,7 +6,7 @@
       "web": "http://www.hudaokeji.com"
     }
   ],
-  "name": "skynode-filesystems",
+  "name": "skynode-ufs",
   "description": "skynode filesytem service library",
   "main": "./index",
   "version": "0.9.0",
