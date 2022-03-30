@@ -43,15 +43,37 @@ const lsconnector = new Unifile.LocalConnector({
 const fsconnector = new Unifile.FsConnector({showHiddenFile: true});
 const sftpconnector = new Unifile.SftpConnector({redirectUri: 'http://localhost:6805/sftp/signin'});
 
+
+
 // Register connectors
-unifile.use(ghconnector);
-unifile.use(dbxconnector);
-unifile.use(ftpconnector);
-unifile.use(rsconnector);
-///unifile.use(wdconnector);
-unifile.use(fsconnector);
-unifile.use(lsconnector);
-unifile.use(sftpconnector);
+Unifile.use( Unifile.GitHubConnector,{
+	clientId: 'b4e46028bf36d871f68d',
+	clientSecret: 'c39806c4d0906cfeaac932012996a1919475cc78',
+	redirectUri : "http://localhost:6805/github/oauth-callback"
+});
+Unifile.use(Unifile.DropboxConnector,{
+	clientId: '37mo489tld3rdi2',
+	clientSecret: 'kqfzd11vamre6xr',
+	redirectUri: 'http://localhost:6805/dropbox/oauth-callback'
+});
+Unifile.use(Unifile.FtpConnector,{
+	{redirectUri: 'http://localhost:6805/ftp/signin'
+});
+Unifile.use(Unifile.HttpConnector,{
+	redirectUri: 'http://localhost:6805/http/callback'
+});
+///Unifile.use(wdconnector);
+Unifile.use(Unifile.FsConnector,{
+	showHiddenFile: true
+});
+Unifile.use(Unifile.LocalConnector,{
+	mappedRealFolder : "C:\\tmp",
+	redirectUri: 'http://localhost:6805/local/callback'
+
+});
+Unifile.use(Unifile.SftpConnector,{
+	redirectUri: 'http://localhost:6805/sftp/signin'
+});
 
 // Expose connector methods
 app.post('/:connector/authorize', function(req, res) {
@@ -73,13 +95,19 @@ app.post('/:connector/authorize', function(req, res) {
 // Search for a old session token in the cookies
 app.get('/', function(req, res) {
 	// Init unifile session in Express
-	req.session.unifile = req.session.unifile || {};
+	let unifile = req.session.unifile = req.session.unifile || {};
 
 	let response;
-	if(req.cookies.unifile_github)
-		response = unifile.setAccessToken(req.session.unifile, 'github', req.cookies.unifile_github);
-	if(req.cookies.unifile_dropbox)
-		response = unifile.setAccessToken(req.session.unifile, 'dropbox', req.cookies.unifile_dropbox);
+	if(req.cookies.unifile_github) {
+		unifile.accessToken = req.cookies.unifile_github;
+		unifile.connector = "github";
+		//response = unifile.setAccessToken(req.session.unifile, 'github', req.cookies.unifile_github);
+	}
+	if(req.cookies.unifile_dropbox) {
+		unifile.accessToken = req.cookies.unifile_dropbox;
+		unifile.connector = "dropbox";
+		//response = unifile.setAccessToken(req.session.unifile, 'dropbox', req.cookies.unifile_dropbox);
+	}
 
 	if(response)
 		response.then(() => res.sendFile(Path.join(__dirname, 'public', 'index.html')));

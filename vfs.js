@@ -305,7 +305,6 @@ _.extend(VFS.prototype,{
   info: function(path) {
     const realPath = this.toRealPath(path);
 
-    console.log("\nrealPath:" + realPath);
     return nfs.stat(realPath).then(function(stat) {
       var info = {
         name: m_path.basename(path),
@@ -330,7 +329,6 @@ _.extend(VFS.prototype,{
         info.type = "file"
       }
 
-      console.dir(info);
       return info;
     });
   },
