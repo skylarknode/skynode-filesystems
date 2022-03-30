@@ -15,7 +15,23 @@ const fsp = Promise.promisifyAll(require('fs'));
 const  archiver = require('archiver');
 const _ = require('underscore');
 const nfs = require('skynode-nfs')
+var mime = require('mime');
 
+
+const DATE_FORMAT = 'llll'
+
+const DEFAULT_STAT = {
+  directory: false, 
+  type: 'unknown',
+  size: 0,
+  mtime: 0,
+  lastModified: '',
+  atime: 0,
+  lastAccessed: '',
+  ctime: 0,
+  lastChanged: '',
+  depth: 0
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -219,14 +235,15 @@ _.extend(VFS.prototype,{
     });
   },
 
-  info: function(resourceId) {
+  info2: function(resourceId) {
     const realPath = this.toRealPath(resourceId);
+    var self = this;
 
     return nfs.stat(realPath).then(function(stat){
       var r = {
-        name: path.basename(p),
+        name: m_path.basename(realPath),
         size: stat.size,
-        hash: private.encode(p),
+        hash: self.encode(p),
         mime: stat.isDirectory() ? 'directory' : mime.lookup(p),
         ts: Math.floor(stat.mtime.getTime() / 1000),
         volumeid: 'v' + info.volume + '_'
@@ -237,7 +254,7 @@ _.extend(VFS.prototype,{
       }
 
       if (r.mime.indexOf('image/') == 0) {
-        var filename = private.encode(p);
+        var filename = self.encode(p);
         var tmbPath = path.join(config.tmbroot, filename + ".png");
         if (nfs.existsSync(tmbPath)) {
           r.tmb = filename + '.png';
@@ -249,7 +266,7 @@ _.extend(VFS.prototype,{
       if (!info.isRoot) {
         var parent = path.dirname(p);
         // if (parent == root) parent = parent + path.sep;
-        r.phash = private.encode(parent);
+        r.phash = self.encode(parent);
       } else {
           r.options = {
             disabled: config.disabled,
@@ -285,6 +302,39 @@ _.extend(VFS.prototype,{
     });
   },
 
+  info: function(path) {
+    const realPath = this.toRealPath(path);
+
+    console.log("\nrealPath:" + realPath);
+    return nfs.stat(realPath).then(function(stat) {
+      var info = {
+        name: m_path.basename(path),
+        mimeType: mime.lookup(path),
+        ext: m_path.extname(path),
+        dirname: m_path.dirname(path),
+        path: path,
+        size : stat.size,
+        mtime :  stat.mtime.getTime(),
+        lastModified : moment(stat.mtime).format(DATE_FORMAT),
+        atime : stat.atime.getTime(),
+        lastAccessed : moment(stat.atime).format(DATE_FORMAT),
+        ctime : stat.ctime.getTime(),
+        lastChanged : moment(stat.ctime).format(DATE_FORMAT),
+      };
+
+      if(stat.isDirectory()) {
+        info.directory = true;
+        info.depth = 0;
+        info.type = 'directory';
+      } else {
+        info.type = "file"
+      }
+
+      console.dir(info);
+      return info;
+    });
+  },
+
   list: function(path,options) {
     options = options || {};
     const realPath = this.toRealPath(path);
@@ -314,9 +364,11 @@ _.extend(VFS.prototype,{
        var cpath = m_path.join(path, f),
            cRealPath = self.toRealPath(cpath);
 
+       debug('cpath ', cpath);
+       debug('cRealPath ', cRealPath);
        debug('Map stat', f);
 
-       return nfs.stat(cRealPath).then(function(info){
+       return self.info(cpath).then(function(info){
           info.dirname = path;
           info.path = cpath;
           return info;
@@ -434,7 +486,7 @@ _.extend(VFS.prototype,{
       return this._mappedRealFolder;
     }
     var path ;
-    if (idOrPath.startsWith(m_path.sep)) {
+    if (!this._options.decodePath ||  idOrPath.startsWith(m_path.sep)) {
       path = idOrPath;
     } else {
       path = this.decode(idOrPath);
