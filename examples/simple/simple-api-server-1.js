@@ -141,7 +141,7 @@ app.get(/\/(.*)\/get\/(.*)/, function(req, res) {
 });
 
 app.patch(/\/(.*)\/mv\/(.*)/, function(req, res) {
-	unifile.rename(req.session.unifile, req.params[0], req.params[1], req.body.destination)
+	unifile.move(req.session.unifile, req.params[0], req.params[1], req.body.destination)
 	.then(function(result) {
 		res.send(result);
 	})
@@ -174,11 +174,22 @@ app.delete(/\/(.*)\/rmdir\/(.*)/, function(req, res) {
 });
 
 app.post(/\/(.*)\/cp\/(.*)/, function(req, res) {
+
+	/*
 	let stream = unifile.createReadStream(req.session.unifile, req.params[0], req.params[1]);
 	// Use PassThrough to prevent request from copying headers between requests
 	if(req.params[0] !== 'webdav' && req.params[0] !== 'fs') stream = stream.pipe(new PassThrough());
 	stream.pipe(unifile.createWriteStream(req.session.unifile, req.params[0], req.body.destination))
 	.pipe(res);
+	*/
+	unifile.copy(req.session.unifile, req.params[0], req.params[1],req.body.destination)
+	.then(function(result) {
+		res.send(result);
+	})
+	.catch(function(err) {
+		console.error(err);
+		res.status(400).send(err);
+	});
 });
 
 app.post(/\/(.*)\/batch\/(.*)/, function(req, res) {

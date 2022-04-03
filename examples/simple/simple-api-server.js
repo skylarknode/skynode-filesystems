@@ -160,7 +160,7 @@ app.get(/\/(.*)\/get\/(.*)/, function(req, res) {
 });
 
 app.patch(/\/(.*)\/mv\/(.*)/, function(req, res) {
-	unifile.rename(req.session.unifile, req.params[0], req.params[1], req.body.destination)
+	unifile.move(req.session.unifile, req.params[0], req.params[1], req.body.destination)
 	.then(function(result) {
 		res.send(result);
 	})
