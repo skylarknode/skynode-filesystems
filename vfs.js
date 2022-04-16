@@ -2,6 +2,7 @@ const lz = require('lzutf8');//Remove after decoupling
 
 const _fs = require('fs-extra');
 const m_path = require('path');
+var crypto = require('crypto');
 
 
 const prettyBytes = require('pretty-bytes')
@@ -32,13 +33,118 @@ const DEFAULT_STAT = {
   lastChanged: '',
   depth: 0
 }
+var gracefulCatch = function(root, path) {
+  return function(err) {
+
+    if(err.code != 'EACCES' && err.code != 'ENOENT') {
+      return Promise.reject(err)
+    }
+
+    if(err.code == 'EACCES')
+      console.error('No file access (check rights on %s)', path)
+    else
+      console.error('No file entry (file %s does not exist ?!)', path)
+
+    return Promise.resolve(root)
+  }
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
+/**
+ * Build Breadcrumb from paths
+ * @param string root
+ * @param string path
+ * @return array of objects {path, name} where name will be linked to path
+ */
+var buildBreadcrumb = function(root, path) {
+  var breadcrumbs = [{path: root, name: root}]
 
+  if(!path) {
+    return breadcrumbs;
+  }
 
+  let paths = path.replace(root, '')
+    .split('/')
+    .filter(function(v) { return v != '' })
+
+  for(let i in paths) {
+    breadcrumbs[parseInt(i)+1] = {
+      path: nfs.join(breadcrumbs[i].path, paths[i]),
+      name: paths[i]
+    }
+  }
+
+  return breadcrumbs
+}
+
+/**
+ * Get directory size through cache
+ * @param object options
+ * @return function
+ */
+var getDirectorySize = function(options) {
+  var cache = options.cache || false;
+
+  /**
+   * @param object file (see below)
+   * @return Promise
+   */
+  return function calcDirectorySize(f) {
+
+    if(f.ext !== 'app' && f.directory !== true) {
+      return f
+    }
+
+    var hash = sha1Hash(f.path);
+
+    var resolver = function() {
+      if(cache) {
+        return Promise.all([
+          cache.time.put(hash, ''+f.mtime, options.cacheTTL),
+          cache.size.put(hash, ''+f.size, options.cacheTTL)
+        ]) .then(function() {
+          return f;
+        })
+      }
+
+      return f;
+    }
+
+    if(cache) {
+      return cache.time.get(hash).then(function(cached) {
+        if(cached == f.mtime) {
+          return cache.size.get(hash)
+          .then(function(size) {
+            f.size = parseInt(size)
+            return f
+          })
+        }
+
+        return nfs.capacity('', f, options).then(resolver);
+      })
+    }
+
+    return nfs.capacity('', f, options).then(resolver)
+  }
+}
+
+/**
+ * create sha1 hash from a string
+ * @param string str the string to hash
+ * @return string a sha1 hash in hexadecimal
+ */
+var sha1Hash = function(str) {
+  var shasum = crypto.createHash('sha1')
+
+  shasum.update(str, 'utf8')
+
+  return shasum.digest('hex')
+}
+
+/**
 /*
  * Creates file information in a format understands
  */
@@ -305,7 +411,9 @@ _.extend(VFS.prototype,{
   info: function(path) {
     const realPath = this.toRealPath(path);
 
-    return nfs.stat(realPath).then(function(stat) {
+    debug("info:realPath:" + realPath);
+
+    return nfs.statAsync(realPath).then(function(stat) {
       var info = {
         name: m_path.basename(path),
         mimeType: mime.lookup(path),
@@ -356,7 +464,7 @@ _.extend(VFS.prototype,{
     var concurrency = {concurrency: options.concurrency};
     var num = 0;
     var totalSize = 0;
-    var directorySize = nfs.getDirectorySize(options);
+    var directorySize = getDirectorySize(options);
 
     return nfs.paths(realPath, options).map(function(f) {
        var cpath = m_path.join(path, f),
@@ -371,7 +479,7 @@ _.extend(VFS.prototype,{
           info.path = cpath;
           return info;
 
-       }).catch(nfs.gracefulCatch(nfs.DEFAULT_STAT, path));
+       }).catch(gracefulCatch(nfs.DEFAULT_STAT, path));
     }, concurrency).filter(options.searchFilter ? options.searchFilter : function(e) { return e })
     .map(options.sort === 'size' ? directorySize : function(e) { return e })
     .call('sort', options.sortMethod || function() { return; })
@@ -396,7 +504,7 @@ _.extend(VFS.prototype,{
 
       return f
     }, concurrency).then(function(tree) {
-      var breadcrumb = nfs.buildBreadcrumb(options.root, options.path)
+      var breadcrumb = buildBreadcrumb(options.root, options.path)
 
       return util._extend({
         tree: tree, 

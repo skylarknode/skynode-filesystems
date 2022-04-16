@@ -17,7 +17,8 @@
     "url": "git://github.com/skylarknode/skynode-vfs.git"
   },
   "scripts": {
-    "explorer": "./node_modules/.bin/snodesrv -c ./examples/explorer/web.json"
+    "explorer": "./node_modules/.bin/snodesrv -c ./examples/explorer/web.json",
+    "simple": "node ./examples/simple/simple-api-server"
   },
   "dependencies": {
     "archiver": "^2.1.1",
@@ -34,6 +35,7 @@
     "findit": ">=2.0.0",
     "formidable": ">=1.0.17",
     "fs-extra": "^4.0.2",
+    "fs-extra-promise": "^1.0.1",
     "glob": "^7.1.2",
     "glob-promise": "^3.3.0",
     "googleapis": "^99.0.0",

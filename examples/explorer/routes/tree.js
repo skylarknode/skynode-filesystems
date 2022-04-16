@@ -181,7 +181,7 @@ function emptyTrash(req, res, next) {
 
   debug('Empty trash %s', opts.remove.path)
 
-  utils.removeDirectoryContent(opts.remove.path)
+  utils.emptyDir(opts.remove.path)
   .then(function() {
     req.flash('info', 'Trash is now empty!')
     return res.handle('back')
