@@ -135,7 +135,7 @@
       var connector = document.getElementById('connector');
       btn.onclick = function(){
         var req = new XMLHttpRequest();
-        req.open('POST', '/' + connector.value + '/authorize', false);
+        req.open('POST', '' + connector.value + '/authorize', false);
         req.setRequestHeader('Content-Type', 'application/json');
         req.send('{"userAddress": "' + document.getElementById('rsHost').value + '"}');
         if(req.status === 200) window.open(req.responseText);
@@ -173,20 +173,21 @@
         }
       }
 
+      const rootPath = "";
       function doAction(action, path){
         switch(action){
           case 'List':
-            var result = request('GET', '/' + connector.value + '/ls/' + path);
+            var result = request('GET', rootPath + 'ls/' + connector.value + "/" +  path);
             res.textContent = formatRes(result);
             break;
           case 'Create Folder':
-            var result = request('PUT', '/' + connector.value + '/mkdir/' + path);
+            var result = request('PUT', rootPath  + 'mkdir/' + connector.value + "/" +path);
             res.textContent = formatRes(result);
             break;
           case 'Create File':
             var content = document.getElementById('fileContent').value;
             var req = new XMLHttpRequest();
-            req.open('PUT', '/' + connector.value + '/put/' + path, false);
+            req.open('PUT', rootPath  +  'put/' + connector.value + "/" +path, false);
             req.setRequestHeader("Content-type", "application/json");
             req.setRequestHeader("Content-length", content.length);
             req.setRequestHeader("Connection", "close");
@@ -195,45 +196,45 @@
             res.textContent = formatRes(result);
             break;
           case 'Get':
-            var result = request('GET', '/' + connector.value + '/get/' + path);
+            var result = request('GET', rootPath  + 'get/' + connector.value + "/" +path);
             res.textContent = formatRes(result);
             break;
           case 'Move':
             var dest = document.getElementById('destination').value;
             var req = new XMLHttpRequest();
-            req.open('PATCH', '/' + connector.value + '/mv/' + path, false);
+            req.open('PATCH', rootPath + 'mv/' + connector.value + "/" +path, false);
             req.setRequestHeader("Content-type", "application/json");
             req.setRequestHeader("Content-length", destination.length);
             req.setRequestHeader("Connection", "close");
-            req.send(JSON.stringify({"destination": dest}));
+            req.send(JSON.stringify({"destination": "/" +  connector.value + "/" +dest}));
             var result = JSON.parse(req.response);
             res.textContent = formatRes(result);
             break;
           case 'Remove':
-            var result = request('DELETE', '/' + connector.value + '/rm/' + path);
+            var result = request('DELETE', rootPath  + 'rm/' + connector.value + "/" +path);
             res.textContent = formatRes(result);
             break;
           case 'Remove dir':
-            var result = request('DELETE', '/' + connector.value + '/rmdir/' + path);
+            var result = request('DELETE', rootPath  + 'rmdir/' + connector.value + "/" +path);
             res.textContent = formatRes(result);
             break;
           case 'Copy':
             var dest = document.getElementById('cpdestination').value;
             var req = new XMLHttpRequest();
-            req.open('POST', '/' + connector.value + '/cp/' + path, false);
+            req.open('POST', rootPath + 'cp/' + connector.value + "/" +path, false);
             req.setRequestHeader("Content-type", "application/json");
             req.setRequestHeader("Content-length", destination.length);
             req.setRequestHeader("Connection", "close");
-            req.send(JSON.stringify({"destination": dest}));
+            req.send(JSON.stringify({"destination": "/" +  connector.value + "/" + dest}));
             var result = JSON.parse(req.response);
             res.textContent = formatRes(result);
             break;
           case 'Batch run':
-            var result = request('POST', '/' + connector.value + '/batch/' + path);
+            var result = request('POST', rootPath + 'batch/' + connector.value + "/" +path);
             res.textContent = formatRes(result);
             break;
           case 'Stat':
-            var result = request('GET', '/' + connector.value + '/stat/' + path);
+            var result = request('GET', rootPath  + 'stat/'  + connector.value + "/" + path);
             res.textContent = formatRes(result);
             break;
         }
