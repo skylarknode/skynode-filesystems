@@ -68,29 +68,26 @@ volumes.mount(lsconnector);
 volumes.mount(sftpconnector);
 volumes.mount(gdriveconnector);
 
-const ufs = new Unifile.FileSystem(volumes);
+///const ufs = new Unifile.FileSystem(volumes);
 
 // Search for a old session token in the cookies
 volumesRouter.get('/', function(req, res) {
 	// Init ufs session in Express
-	req.session.ufs = req.session.ufs || {};
-
-	let response;
-	if(req.cookies.ufs_github)
-		response = ufs.setAccessToken(req.session.ufs, req.cookies.ufs_github, 'github');
-	if(req.cookies.ufs_dropbox)
-		response = ufs.setAccessToken(req.session.ufs, req.cookies.ufs_dropbox, 'dropbox');
-
-	if(response)
-		response.then(() => res.sendFile(Path.join(__dirname, 'public/volumes', 'index.html')));
-	else res.sendFile(Path.join(__dirname, 'public/volumes', 'index.html'));
+    res.sendFile(Path.join(__dirname, 'public/volumes', 'index.html'));
 });
 
 
-require("../../lib/routes/volumes")(volumesRouter,ufs,{
+require("../../lib/routes/volumes")(volumesRouter,{
+	ufs : function(req,res) {
+		if (!req.ufs) {
+			const ufsSession = req.session.ufs = req.session.ufs || {};
+			req.ufs = new Unifile.FileSystem(volumes,ufsSession);
+		}
+		return req.ufs;
+	},
 	"authorizes" : {
 		signin : function(req, res) {
-	      res.sendFile(Path.join(__dirname, 'public/volumes', req.params.connector + '_login.html'));
+	      	res.sendFile(Path.join(__dirname, 'public/volumes', req.params.connector + '_login.html'));
 	    }
 	}
 });
