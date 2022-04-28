@@ -25,8 +25,8 @@ app.use("/volumes",volumesRouter)
 
 // Configure connectors
 const ghconnector = new Unifile.connects.GitHubConnector({
-	clientId: 'b4e46028bf36d871f68d',
-	clientSecret: 'c39806c4d0906cfeaac932012996a1919475cc78',
+	clientId: '0d02bf5aa3afb93c8dce',
+	clientSecret: 'ad1950c97b22e2119298d19d24932ef500f45069',
 	redirectUri : "http://localhost:6805/volumes/github/oauth-callback"
 });
 const dbxconnector = new Unifile.connects.DropboxConnector({
@@ -34,7 +34,7 @@ const dbxconnector = new Unifile.connects.DropboxConnector({
 	clientSecret: 'kqfzd11vamre6xr',
 	redirectUri: 'http://localhost:6805/volumes/dropbox/oauth-callback'
 });
-const ftpconnector = new Unifile.connects.FtpConnector({redirectUri: 'http://localhost:6805/ftp/signin'});
+const ftpconnector = new Unifile.connects.FtpConnector({redirectUri: 'http://localhost:6805/volumes/ftp/signin'});
 ///const wdconnector = new Unifile.WebDavConnector({redirectUri: 'http://localhost:6805/webdav/signin'});
 const rsconnector = new Unifile.connects.HttpConnector({
 	redirectUri: 'http://localhost:6805/volumes/http/callback'
@@ -44,7 +44,7 @@ const lsconnector = new Unifile.connects.LocalConnector({
 	redirectUri: 'http://localhost:6805/volumes/local/callback'
 });
 const fsconnector = new Unifile.connects.FsConnector({showHiddenFile: true});
-const sftpconnector = new Unifile.connects.SftpConnector({redirectUri: 'http://localhost:6805/sftp/signin'});
+const sftpconnector = new Unifile.connects.SftpConnector({redirectUri: 'http://localhost:6805/volumes/sftp/signin'});
 
 
 const gdriveconnector = new Unifile.connects.GoogleDriveConnector({
