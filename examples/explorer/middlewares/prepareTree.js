@@ -53,6 +53,10 @@ function prepareTree(app) {
       parent: utils.higherPath(homePath, p.resolve(req.query.path, '..')),
       buildUrl: utils.buildUrl,
       extend: utils.extend,
+      prettyBytes : utils.prettyBytes,
+      prettyTime : utils.prettyTime,
+      buildBreadcrumb : utils.buildBreadcrumb,
+      isDirectory : utils.isDirectory,
       urlOptions: {
         limit: req.query.limit,
         order: req.query.order,

@@ -9,7 +9,7 @@
           .columns.large-3
             %button.button.postfix.primary{type: 'submit'} Search
     %ul.breadcrumbs
-      - each b in breadcrumb
+      - each b in buildBreadcrumb(root,path)
         %li
           %a{href: '/?path=' + b.path}= b.name
     %form#options{method: 'GET', action: ''}
@@ -52,12 +52,12 @@
             - if(canRemove)
               %th 
         %tbody
-        - each item in tree
+        - each item in files
           %tr
             %td
               %input{type: 'checkbox', value: item.path, name: 'path'}
             %td
-              - if (item.directory)
+              - if (isDirectory(item))
                 - var options = extend(urlOptions, {page: 1})
                 %a{href: buildUrl(item.path, '', options)}
                   %i.icon-folder
@@ -70,9 +70,9 @@
                     - var options = extend(urlOptions, {page: 1})
                     %a{href: buildUrl(item.dirname, '', options)}
                       %i.icon-folder.right{title: 'Jump to directory'}
-            %td= item.lastModified
-            %td= item.lastAccessed
-            %td= item.humanSize
+            %td= prettyTime(item.modifiedTime)
+            %td= prettyTime(item.accessedTime)
+            %td= prettyBytes(item.size)
             - if(canRemove)
               %td
                 - each p in hooks
@@ -91,7 +91,7 @@
               %select{name: 'action'}
                 - each p in hooks
                   - if('action' in p)
-                    != p.action(tree)
+                    != p.action(files)
             .large-3.columns
               %input{type: 'text', name: 'name', placeholder: 'archive' + new Date().getTime()}
             .large-2.columns
@@ -99,15 +99,15 @@
                 Submit
             .large-4.columns.end.text-right
               %p
-                - if(num == 1)
-                  = num + ' result'
+                - if(totalCount == 1)
+                  = totalCount + ' result'
                 - else
-                  = num + ' results'
-                = ' (' + size + ')'
+                  = totalCount + ' results'
+                = ' (' +  prettyBytes(totalSize) + ')'
     %dl#directory-hooks
       - each p in hooks
         - if('directory' in p)
-          != p.directory(tree, path)
+          != p.directory(files, path)
     .pagination-centered
       %ul.pagination
         - if(page == 1)

@@ -12,7 +12,7 @@ var parallelMiddlewares = require('./lib/utils').parallelMiddlewares;
 var fs = Promise.promisifyAll(require('fs'));
 var debug = require('debug')('explorer:server');
 
-var vfs = require('../../vfs');
+var vfs = require('./lib/wfs');
 
 module.exports = function(app) {
   var config = app.get('config');

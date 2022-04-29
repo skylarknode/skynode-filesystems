@@ -23,11 +23,22 @@ function download(req, res, next) {
   var wfs = req.app.get("wfs");
 
 
-  return wfs.info(path).then( function(info) {
-    if(info.directory) {
-      return next(new HTTPError('Downloading a directory is not possible', 400)) 
-    }
-    
+  return wfs.stat(path).then( function(info) {
+      if(utils.isDirectory(info)) {
+        return next(new HTTPError('Downloading a directory is not possible', 400)) 
+      }
+      
+
+      return wfs.readFile(path).then(function(result){
+          console.dir(info);
+          res.type(info.mimeType);
+          return res.send(result);
+      })
+      .catch(function(err){
+          return utils.handleSystemError(next)(err);
+      });
+
+    /*
     if(~['image', 'text'].indexOf(info.type)) {
 
       debug('SendFile %o', info)
@@ -39,6 +50,7 @@ function download(req, res, next) {
         lastModified: stat.mtime
       }
 
+      
       return res.sendFile(wfs.toRealPath(path), options, function(err) {
         if(err) {
           return utils.handleSystemError(next)(err)
@@ -47,12 +59,15 @@ function download(req, res, next) {
     }
 
     debug('Download %o', info)
-
+ 
     return res.download(wfs.toRealPath(path), p.basename(path), function(err) {
       if(err) {
         return utils.handleSystemError(next)(err)
       } 
     })
+
+    */
+
   })
   .catch(function(err) {
     if(err) {
@@ -77,8 +92,8 @@ function getTree(req, res, next) {
   var wfs = req.app.get("wfs");
   
   wfs.list(req.options.path, req.options)
-  .then(function(e) {
-    res.locals = utils.extend(res.locals, e)
+  .then(function(result) {
+    res.locals = utils.extend(res.locals, result,req.options)
     return next()
   })
   .catch(function(err) {
