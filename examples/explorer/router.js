@@ -23,13 +23,6 @@ module.exports = function(app) {
   app.set("home",homePath);
   app.set("wfs",vfs.createVFS(homePath));
 
-  let cache = require('./lib/cache')({
-    cache : "memory"
-  });
-
-  app.set('cache', function getCache(namespace) {
-      return new cache(namespace)
-  })
 
   plugins.registerPlugins(app)
 

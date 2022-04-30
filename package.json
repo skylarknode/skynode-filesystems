@@ -52,7 +52,7 @@
     "session-file-store": "^1.1.2",
     "sftp-promises": "^1.4.1",
     "simplejsonconf": "^1.0.7",
-    "skynode-nfs": "git+https://github.com/skylarknode/skynode-nfs.git#master",
+    "skynode-nfs": "git+https://github.com/skylarknode/skynode-nfs.git",
     "unzip-stream": "^0.1.2",
     "webfinger.js": "^2.4.2",
     "ws": "^3.3.2"
@@ -76,7 +76,7 @@
     "rss": "^1.2.2",
     "should": "~1.2.2",
     "sinon": "~1.7.3",
-    "skynode-server": "git+https://github.com/skylarknode/skynode-server.git#master",
+    "skynode-server": "git+https://github.com/skylarknode/skynode-server.git",
     "tap": "^6.3.2",
     "tap-only": "0.0.5",
     "util": "^0.10.3"
