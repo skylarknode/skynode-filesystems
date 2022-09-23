@@ -2,7 +2,7 @@
 
 const Path = require('path');
 const PassThrough = require('stream').PassThrough;
-
+require('amd-loader');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -49,7 +49,7 @@ const sftpconnector = new Unifile.connects.SftpConnector({redirectUri: 'http://l
 
 const gdriveconnector = new Unifile.connects.GoogleDriveConnector({
 	clientId: '142047696565-e85s5df5r25tojtk1q1v40eqolc4c9lt.apps.googleusercontent.com',
-	clientSecret: '67Cr51-XRoC2lL_Q9FH5QCIN',
+	clientSecret: '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',
 	redirectUri : "http://localhost:6805/volumes/gdrive/oauth-callback"
 });
 

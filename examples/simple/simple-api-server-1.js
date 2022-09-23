@@ -47,7 +47,7 @@ const sftpconnector = new Unifile.SftpConnector({redirectUri: 'http://localhost:
 
 const gdriveconnector = new Unifile.GoogleDriveConnector({
 	clientId: '142047696565-e85s5df5r25tojtk1q1v40eqolc4c9lt.apps.googleusercontent.com',
-	clientSecret: '67Cr51-XRoC2lL_Q9FH5QCIN',
+	clientSecret: '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',
 	redirectUri : "http://localhost:6805/gdrive/oauth-callback"
 });
 
