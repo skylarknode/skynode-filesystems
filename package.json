@@ -53,6 +53,7 @@
     "sftp-promises": "^1.4.1",
     "simplejsonconf": "^1.0.7",
     "skynode-nfs": "git+https://github.com/skylarknode/skynode-nfs.git",
+    "skynode-vfs": "git+https://github.com/skylarknode/skynode-nfs.git",
     "unzip-stream": "^0.1.2",
     "webfinger.js": "^2.4.2",
     "ws": "^3.3.2"
