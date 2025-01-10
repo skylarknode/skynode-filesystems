@@ -59,7 +59,7 @@ const volumes = new Unifile.connects.VolumesConnector({
 
 // mount volumes
 volumes.mount(ghconnector);
-volumes.mount(dbxconnector);
+//volumes.mount(dbxconnector);
 volumes.mount(ftpconnector);
 volumes.mount(rsconnector);
 ///ufs.use(wdconnector);
